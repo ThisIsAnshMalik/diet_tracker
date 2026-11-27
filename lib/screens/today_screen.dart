@@ -13,12 +13,14 @@ class TodayScreen extends StatefulWidget {
     required this.storage,
     required this.profileStorage,
     required this.onLogMeal,
+    required this.onOpenMeal,
     required this.onViewDiary,
   });
 
   final DietStorage storage;
   final ProfileStorage profileStorage;
   final void Function({MealType meal}) onLogMeal;
+  final void Function(MealType meal) onOpenMeal;
   final VoidCallback onViewDiary;
 
   @override
@@ -215,6 +217,7 @@ class TodayScreenState extends State<TodayScreen> {
               _MealRow(
                 meal: meal,
                 entries: _today.where((e) => e.mealType == meal).toList(),
+                onTap: () => widget.onOpenMeal(meal),
                 onLog: () => widget.onLogMeal(meal: meal),
               ),
           ],
@@ -287,11 +290,13 @@ class _MealRow extends StatelessWidget {
   const _MealRow({
     required this.meal,
     required this.entries,
+    required this.onTap,
     required this.onLog,
   });
 
   final MealType meal;
   final List<FoodEntry> entries;
+  final VoidCallback onTap;
   final VoidCallback onLog;
 
   @override
@@ -300,50 +305,62 @@ class _MealRow extends StatelessWidget {
 
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
       decoration: mfpCardDecoration(),
-      child: Row(
-        children: [
-          Icon(meal.icon, color: MfpColors.primaryText, size: 26),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(AppRadii.lg),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+            child: Row(
               children: [
-                Text(
-                  meal.label,
-                  style: GoogleFonts.inter(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
+                Icon(meal.icon, color: MfpColors.primaryText, size: 26),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        meal.label,
+                        style: GoogleFonts.inter(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      if (entries.isNotEmpty)
+                        Text(
+                          '$cals cal logged',
+                          style: GoogleFonts.inter(
+                            fontSize: 13,
+                            color: MfpColors.textMuted,
+                          ),
+                        ),
+                    ],
                   ),
                 ),
-                if (entries.isNotEmpty)
-                  Text(
-                    '$cals cal logged',
-                    style: GoogleFonts.inter(
-                      fontSize: 13,
-                      color: MfpColors.textMuted,
+                TextButton(
+                  onPressed: onLog,
+                  style: TextButton.styleFrom(
+                    backgroundColor: MfpColors.logPillBg,
+                    foregroundColor: MfpColors.primaryText,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 22,
+                      vertical: 10,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(AppRadii.pill),
                     ),
                   ),
+                  child: Text(
+                    entries.isEmpty ? 'Log food' : 'Log more',
+                    style: GoogleFonts.inter(fontWeight: FontWeight.w600),
+                  ),
+                ),
               ],
             ),
           ),
-          TextButton(
-            onPressed: onLog,
-            style: TextButton.styleFrom(
-              backgroundColor: MfpColors.logPillBg,
-              foregroundColor: MfpColors.primaryText,
-              padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 10),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(AppRadii.pill),
-              ),
-            ),
-            child: Text(
-              entries.isEmpty ? 'Log food' : 'Log more',
-              style: GoogleFonts.inter(fontWeight: FontWeight.w600),
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }

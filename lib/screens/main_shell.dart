@@ -3,6 +3,7 @@ import 'package:diet_tracker/data/profile_storage.dart';
 import 'package:diet_tracker/models/meal_type.dart';
 import 'package:diet_tracker/screens/add_entry_sheet.dart';
 import 'package:diet_tracker/screens/diary_screen.dart';
+import 'package:diet_tracker/screens/meal_detail_screen.dart';
 import 'package:diet_tracker/screens/today_screen.dart';
 import 'package:diet_tracker/theme/mfp_theme.dart';
 import 'package:flutter/material.dart';
@@ -41,6 +42,19 @@ class _MainShellState extends State<MainShell> {
     setState(() {});
   }
 
+  Future<void> _openMealDetail(MealType meal) async {
+    await Navigator.of(context).push<void>(
+      MaterialPageRoute(
+        builder: (context) => MealDetailScreen(
+          storage: widget.storage,
+          meal: meal,
+          onLogMore: () => _openAddFood(meal: meal),
+        ),
+      ),
+    );
+    _todayKey.currentState?.reload();
+  }
+
   @override
   Widget build(BuildContext context) {
     final body = switch (_tab) {
@@ -49,6 +63,7 @@ class _MainShellState extends State<MainShell> {
           storage: widget.storage,
           profileStorage: widget.profileStorage,
           onLogMeal: _openAddFood,
+          onOpenMeal: _openMealDetail,
           onViewDiary: () async {
             await Navigator.of(context).push<void>(
               MaterialPageRoute(

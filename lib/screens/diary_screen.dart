@@ -1,4 +1,5 @@
 import 'package:diet_tracker/data/diet_storage.dart';
+import 'package:diet_tracker/screens/edit_food_entry_sheet.dart';
 import 'package:diet_tracker/models/food_entry.dart';
 import 'package:diet_tracker/models/meal_type.dart';
 import 'package:diet_tracker/theme/mfp_theme.dart';
@@ -35,6 +36,15 @@ class _DiaryScreenState extends State<DiaryScreen> {
     _load();
   }
 
+  Future<void> _edit(FoodEntry e) async {
+    await showEditFoodEntrySheet(
+      context,
+      storage: widget.storage,
+      entry: e,
+      onSaved: _load,
+    );
+  }
+
   List<FoodEntry> _meal(MealType m) =>
       _today.where((e) => e.mealType == m).toList();
 
@@ -68,6 +78,7 @@ class _DiaryScreenState extends State<DiaryScreen> {
               meal: meal,
               entries: _meal(meal),
               onDelete: _delete,
+              onEdit: _edit,
             ),
         ],
       ),
@@ -80,11 +91,13 @@ class _DiaryMealCard extends StatelessWidget {
     required this.meal,
     required this.entries,
     required this.onDelete,
+    required this.onEdit,
   });
 
   final MealType meal;
   final List<FoodEntry> entries;
   final void Function(FoodEntry) onDelete;
+  final void Function(FoodEntry) onEdit;
 
   @override
   Widget build(BuildContext context) {
@@ -160,42 +173,55 @@ class _DiaryMealCard extends StatelessWidget {
                   padding: const EdgeInsets.only(right: 20),
                   child: const Icon(Icons.delete_outline, color: Colors.white),
                 ),
-                child: Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              e.name,
-                              style: GoogleFonts.inter(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              '${e.calories} cal',
-                              style: GoogleFonts.inter(
-                                fontSize: 13,
-                                color: MfpColors.textMuted,
-                              ),
-                            ),
-                          ],
-                        ),
+                child: Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    onTap: () => onEdit(e),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 14,
                       ),
-                      Text(
-                        '${e.calories}',
-                        style: GoogleFonts.inter(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                        ),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  e.name,
+                                  style: GoogleFonts.inter(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  '${e.calories} cal',
+                                  style: GoogleFonts.inter(
+                                    fontSize: 13,
+                                    color: MfpColors.textMuted,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Text(
+                            '${e.calories}',
+                            style: GoogleFonts.inter(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          const Icon(
+                            Icons.chevron_right_rounded,
+                            color: MfpColors.textMuted,
+                            size: 22,
+                          ),
+                        ],
                       ),
-                    ],
+                    ),
                   ),
                 ),
               ),

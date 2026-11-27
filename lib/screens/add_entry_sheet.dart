@@ -29,13 +29,6 @@ class _AddFoodScreenState extends State<AddFoodScreen>
   late MealType _meal;
   late TabController _tabs;
   final _search = TextEditingController();
-  bool _quickAdd = false;
-
-  final _name = TextEditingController();
-  final _calories = TextEditingController();
-  final _carbs = TextEditingController();
-  final _fat = TextEditingController();
-  final _protein = TextEditingController();
 
   @override
   void initState() {
@@ -48,11 +41,6 @@ class _AddFoodScreenState extends State<AddFoodScreen>
   void dispose() {
     _tabs.dispose();
     _search.dispose();
-    _name.dispose();
-    _calories.dispose();
-    _carbs.dispose();
-    _fat.dispose();
-    _protein.dispose();
     super.dispose();
   }
 
@@ -109,45 +97,8 @@ class _AddFoodScreenState extends State<AddFoodScreen>
     );
   }
 
-  Future<void> _submitQuickAdd() async {
-    final cals = int.tryParse(_calories.text.trim());
-    final carb = double.tryParse(_carbs.text.trim());
-    final f = double.tryParse(_fat.text.trim());
-    final p = double.tryParse(_protein.text.trim());
-    if (_name.text.trim().isEmpty ||
-        cals == null ||
-        carb == null ||
-        f == null ||
-        p == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Fill in all fields')),
-      );
-      return;
-    }
-    await _logEntry(
-      FoodEntry(
-        id: DateTime.now().microsecondsSinceEpoch.toString(),
-        name: _name.text.trim(),
-        mealType: _meal,
-        loggedAt: DateTime.now(),
-        calories: cals,
-        proteinG: p,
-        carbsG: carb,
-        fatG: f,
-      ),
-    );
-  }
-
-  void _stub(String feature) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('$feature is not available in this demo')),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
-    if (_quickAdd) return _buildQuickAddScaffold();
-
     final recent = widget.storage.recentEntries();
 
     return Scaffold(
@@ -294,8 +245,6 @@ class _AddFoodScreenState extends State<AddFoodScreen>
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
       children: [
-        _quickActions(),
-        const SizedBox(height: 20),
         Row(
           children: [
             Text(
@@ -317,64 +266,6 @@ class _AddFoodScreenState extends State<AddFoodScreen>
           )
         else
           ...recent.map(_recentCard),
-      ],
-    );
-  }
-
-  Widget _quickActions() {
-    final actions = [
-      (Icons.qr_code_scanner_rounded, 'Barcode\nscan'),
-      (Icons.mic_none_rounded, 'Voice\nlog'),
-      (Icons.document_scanner_outlined, 'Meal\nscan'),
-      (Icons.bolt_rounded, 'Quick\nadd'),
-    ];
-    return Row(
-      children: [
-        for (var i = 0; i < actions.length; i++)
-          Expanded(
-            child: Padding(
-              padding: EdgeInsets.only(right: i < 3 ? 8 : 0),
-              child: Material(
-                color: MfpColors.surface,
-                borderRadius: BorderRadius.circular(AppRadii.md),
-                child: InkWell(
-                  onTap: () {
-                    if (i == 3) {
-                      setState(() => _quickAdd = true);
-                    } else {
-                      _stub(actions[i].$2.replaceAll('\n', ' '));
-                    }
-                  },
-                  borderRadius: BorderRadius.circular(AppRadii.md),
-                  child: Container(
-                    height: 88,
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(AppRadii.md),
-                      border: Border.all(color: MfpColors.border),
-                    ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(actions[i].$1, color: MfpColors.primaryText),
-                        const SizedBox(height: 6),
-                        Text(
-                          actions[i].$2,
-                          textAlign: TextAlign.center,
-                          style: GoogleFonts.inter(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w600,
-                            color: MfpColors.primaryText,
-                            height: 1.2,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
       ],
     );
   }
@@ -545,54 +436,4 @@ class _AddFoodScreenState extends State<AddFoodScreen>
     );
   }
 
-  Widget _buildQuickAddScaffold() {
-    return Scaffold(
-      backgroundColor: MfpColors.scaffold,
-      appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => setState(() => _quickAdd = false),
-        ),
-        title: const Text('Quick add'),
-      ),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          TextField(
-            controller: _name,
-            decoration: const InputDecoration(labelText: 'Food name'),
-          ),
-          const SizedBox(height: 12),
-          TextField(
-            controller: _calories,
-            keyboardType: TextInputType.number,
-            decoration: const InputDecoration(labelText: 'Calories'),
-          ),
-          const SizedBox(height: 12),
-          TextField(
-            controller: _carbs,
-            keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            decoration: const InputDecoration(labelText: 'Carbs (g)'),
-          ),
-          const SizedBox(height: 12),
-          TextField(
-            controller: _fat,
-            keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            decoration: const InputDecoration(labelText: 'Fat (g)'),
-          ),
-          const SizedBox(height: 12),
-          TextField(
-            controller: _protein,
-            keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            decoration: const InputDecoration(labelText: 'Protein (g)'),
-          ),
-          const SizedBox(height: 24),
-          FilledButton(
-            onPressed: _submitQuickAdd,
-            child: const Text('Add to diary'),
-          ),
-        ],
-      ),
-    );
-  }
 }

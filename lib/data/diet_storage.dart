@@ -50,6 +50,14 @@ class DietStorage {
     await saveAll(all);
   }
 
+  Future<void> update(FoodEntry entry) async {
+    final all = loadAll();
+    final index = all.indexWhere((e) => e.id == entry.id);
+    if (index < 0) return;
+    all[index] = entry;
+    await saveAll(all);
+  }
+
   /// Most recently logged entries (newest first), unique by food name.
   List<FoodEntry> recentEntries({int limit = 12}) {
     final all = loadAll()..sort((a, b) => b.loggedAt.compareTo(a.loggedAt));
