@@ -85,6 +85,19 @@ abstract final class CalorieCalculator {
     );
   }
 
+  static ({double proteinG, double carbsG, double fatG}) macrosForCalories(
+    int calories,
+  ) {
+    const proteinRatio = 0.30;
+    const carbsRatio = 0.40;
+    const fatRatio = 0.30;
+    return (
+      proteinG: (calories * proteinRatio) / 4,
+      carbsG: (calories * carbsRatio) / 4,
+      fatG: (calories * fatRatio) / 9,
+    );
+  }
+
   static UserProfile toProfile({
     required double heightCm,
     required double weightKg,
@@ -92,6 +105,8 @@ abstract final class CalorieCalculator {
     required Gender gender,
     required ActivityLevel activity,
     required WeightGoal goal,
+    bool useCustomCalories = false,
+    int? customCalorieGoal,
   }) {
     final plan = buildPlan(
       heightCm: heightCm,
@@ -101,6 +116,10 @@ abstract final class CalorieCalculator {
       activity: activity,
       goal: goal,
     );
+    final calories = useCustomCalories && customCalorieGoal != null
+        ? customCalorieGoal.clamp(1200, 4500)
+        : plan.calorieGoal;
+    final macros = macrosForCalories(calories);
     return UserProfile(
       heightCm: heightCm,
       weightKg: weightKg,
@@ -108,11 +127,12 @@ abstract final class CalorieCalculator {
       gender: gender,
       activity: activity,
       goal: goal,
-      calorieGoal: plan.calorieGoal,
-      proteinG: plan.proteinG,
-      carbsG: plan.carbsG,
-      fatG: plan.fatG,
+      calorieGoal: calories,
+      proteinG: macros.proteinG,
+      carbsG: macros.carbsG,
+      fatG: macros.fatG,
       bmi: plan.bmi,
+      useCustomCalories: useCustomCalories,
     );
   }
 }

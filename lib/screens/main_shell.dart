@@ -47,7 +47,7 @@ class _MainShellState extends State<MainShell> {
       0 => TodayScreen(
           key: _todayKey,
           storage: widget.storage,
-          profile: widget.profileStorage.profileOrDefault,
+          profileStorage: widget.profileStorage,
           onLogMeal: _openAddFood,
           onViewDiary: () async {
             await Navigator.of(context).push<void>(

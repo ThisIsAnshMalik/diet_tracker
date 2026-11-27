@@ -81,6 +81,7 @@ class UserProfile {
     required this.carbsG,
     required this.fatG,
     required this.bmi,
+    this.useCustomCalories = false,
   });
 
   final double heightCm;
@@ -94,6 +95,7 @@ class UserProfile {
   final double carbsG;
   final double fatG;
   final double bmi;
+  final bool useCustomCalories;
 
   Map<String, dynamic> toJson() => {
         'heightCm': heightCm,
@@ -107,6 +109,7 @@ class UserProfile {
         'carbsG': carbsG,
         'fatG': fatG,
         'bmi': bmi,
+        'useCustomCalories': useCustomCalories,
       };
 
   factory UserProfile.fromJson(Map<String, dynamic> json) {
@@ -122,6 +125,7 @@ class UserProfile {
       carbsG: (json['carbsG'] as num).toDouble(),
       fatG: (json['fatG'] as num).toDouble(),
       bmi: (json['bmi'] as num).toDouble(),
+      useCustomCalories: json['useCustomCalories'] as bool? ?? false,
     );
   }
 }

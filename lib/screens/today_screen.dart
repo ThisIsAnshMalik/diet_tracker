@@ -1,6 +1,7 @@
 import 'package:diet_tracker/data/diet_storage.dart';
+import 'package:diet_tracker/data/profile_storage.dart';
+import 'package:diet_tracker/screens/edit_goals_screen.dart';
 import 'package:diet_tracker/models/food_entry.dart';
-import 'package:diet_tracker/models/user_profile.dart';
 import 'package:diet_tracker/models/meal_type.dart';
 import 'package:diet_tracker/theme/mfp_theme.dart';
 import 'package:flutter/material.dart';
@@ -10,13 +11,13 @@ class TodayScreen extends StatefulWidget {
   const TodayScreen({
     super.key,
     required this.storage,
-    required this.profile,
+    required this.profileStorage,
     required this.onLogMeal,
     required this.onViewDiary,
   });
 
   final DietStorage storage;
-  final UserProfile profile;
+  final ProfileStorage profileStorage;
   final void Function({MealType meal}) onLogMeal;
   final VoidCallback onViewDiary;
 
@@ -40,13 +41,24 @@ class TodayScreenState extends State<TodayScreen> {
     });
   }
 
+  Future<void> _openEditGoals() async {
+    final saved = await Navigator.of(context).push<bool>(
+      MaterialPageRoute(
+        builder: (context) =>
+            EditGoalsScreen(profileStorage: widget.profileStorage),
+      ),
+    );
+    if (saved == true) reload();
+  }
+
   @override
   Widget build(BuildContext context) {
     final calories = _today.fold<int>(0, (s, e) => s + e.calories);
     final carbs = _today.fold<double>(0, (s, e) => s + e.carbsG);
     final fat = _today.fold<double>(0, (s, e) => s + e.fatG);
     final protein = _today.fold<double>(0, (s, e) => s + e.proteinG);
-    final calorieGoal = widget.profile.calorieGoal;
+    final profile = widget.profileStorage.profileOrDefault;
+    final calorieGoal = profile.calorieGoal;
     final left = calorieGoal - calories;
     final calProgress =
         (calories / calorieGoal).clamp(0.0, 1.0).toDouble();
@@ -69,19 +81,24 @@ class TodayScreenState extends State<TodayScreen> {
                 ),
                 const Icon(Icons.keyboard_arrow_down_rounded, size: 28),
                 const Spacer(),
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                  decoration: BoxDecoration(
-                    color: MfpColors.premium,
-                    borderRadius: BorderRadius.circular(AppRadii.pill),
-                  ),
-                  child: Text(
-                    'Goals',
-                    style: GoogleFonts.inter(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w700,
-                      color: Colors.black87,
+                GestureDetector(
+                  onTap: _openEditGoals,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 8,
+                    ),
+                    decoration: BoxDecoration(
+                      color: MfpColors.premium,
+                      borderRadius: BorderRadius.circular(AppRadii.pill),
+                    ),
+                    child: Text(
+                      'Goals',
+                      style: GoogleFonts.inter(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.black87,
+                      ),
                     ),
                   ),
                 ),
@@ -151,19 +168,19 @@ class TodayScreenState extends State<TodayScreen> {
                   _MacroStat(
                     label: 'Carbs',
                     value: carbs,
-                    goal: widget.profile.carbsG,
+                    goal: profile.carbsG,
                     color: MfpColors.carbs,
                   ),
                   _MacroStat(
                     label: 'Fat',
                     value: fat,
-                    goal: widget.profile.fatG,
+                    goal: profile.fatG,
                     color: MfpColors.fat,
                   ),
                   _MacroStat(
                     label: 'Protein',
                     value: protein,
-                    goal: widget.profile.proteinG,
+                    goal: profile.proteinG,
                     color: MfpColors.protein,
                   ),
                 ],
