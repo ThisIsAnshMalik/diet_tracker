@@ -1,7 +1,9 @@
 import 'dart:convert';
 
 import 'package:diet_tracker/data/diet_storage.dart';
+import 'package:diet_tracker/data/food_cache_storage.dart';
 import 'package:diet_tracker/data/profile_storage.dart';
+import 'package:diet_tracker/repositories/nutrition_repository.dart';
 import 'package:diet_tracker/logic/calorie_calculator.dart';
 import 'package:diet_tracker/main.dart';
 import 'package:diet_tracker/models/user_profile.dart';
@@ -25,11 +27,14 @@ void main() {
 
     final dietStorage = await DietStorage.create();
     final profileStorage = await ProfileStorage.create();
+    final foodCache = await FoodCacheStorage.create();
+    final nutritionRepository = NutritionRepository(cache: foodCache);
 
     await tester.pumpWidget(
       DietTrackerApp(
         dietStorage: dietStorage,
         profileStorage: profileStorage,
+        nutritionRepository: nutritionRepository,
       ),
     );
     await tester.pumpAndSettle();

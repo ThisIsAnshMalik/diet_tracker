@@ -1,5 +1,6 @@
 import 'package:diet_tracker/data/diet_storage.dart';
 import 'package:diet_tracker/data/profile_storage.dart';
+import 'package:diet_tracker/repositories/nutrition_repository.dart';
 import 'package:diet_tracker/models/meal_type.dart';
 import 'package:diet_tracker/screens/add_entry_sheet.dart';
 import 'package:diet_tracker/screens/diary_screen.dart';
@@ -14,10 +15,12 @@ class MainShell extends StatefulWidget {
     super.key,
     required this.storage,
     required this.profileStorage,
+    required this.nutritionRepository,
   });
 
   final DietStorage storage;
   final ProfileStorage profileStorage;
+  final NutritionRepository nutritionRepository;
 
   @override
   State<MainShell> createState() => _MainShellState();
@@ -33,6 +36,7 @@ class _MainShellState extends State<MainShell> {
         fullscreenDialog: true,
         builder: (context) => AddFoodScreen(
           storage: widget.storage,
+          nutritionRepository: widget.nutritionRepository,
           initialMeal: meal,
           onSaved: () => _todayKey.currentState?.reload(),
         ),

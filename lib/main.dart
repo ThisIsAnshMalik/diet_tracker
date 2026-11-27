@@ -1,5 +1,7 @@
 import 'package:diet_tracker/data/diet_storage.dart';
+import 'package:diet_tracker/data/food_cache_storage.dart';
 import 'package:diet_tracker/data/profile_storage.dart';
+import 'package:diet_tracker/repositories/nutrition_repository.dart';
 import 'package:diet_tracker/screens/main_shell.dart';
 import 'package:diet_tracker/screens/onboarding/onboarding_flow.dart';
 import 'package:diet_tracker/theme/mfp_theme.dart';
@@ -10,8 +12,14 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final dietStorage = await DietStorage.create();
   final profileStorage = await ProfileStorage.create();
+  final foodCache = await FoodCacheStorage.create();
+  final nutritionRepository = NutritionRepository(cache: foodCache);
   runApp(
-    DietTrackerApp(dietStorage: dietStorage, profileStorage: profileStorage),
+    DietTrackerApp(
+      dietStorage: dietStorage,
+      profileStorage: profileStorage,
+      nutritionRepository: nutritionRepository,
+    ),
   );
 }
 
@@ -20,10 +28,12 @@ class DietTrackerApp extends StatefulWidget {
     super.key,
     required this.dietStorage,
     required this.profileStorage,
+    required this.nutritionRepository,
   });
 
   final DietStorage dietStorage;
   final ProfileStorage profileStorage;
+  final NutritionRepository nutritionRepository;
 
   @override
   State<DietTrackerApp> createState() => _DietTrackerAppState();
@@ -45,6 +55,7 @@ class _DietTrackerAppState extends State<DietTrackerApp> {
           ? MainShell(
               storage: widget.dietStorage,
               profileStorage: widget.profileStorage,
+              nutritionRepository: widget.nutritionRepository,
             )
           : OnboardingFlow(
               profileStorage: widget.profileStorage,

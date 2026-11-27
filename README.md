@@ -1,16 +1,43 @@
 # diet_tracker
 
-A new Flutter project.
+Flutter diet tracker with local logging, USDA FoodData Central, and Open Food Facts.
 
-## Getting Started
+## API keys
 
-This project is a starting point for a Flutter application.
+USDA FoodData Central requires an API key ([get one](https://fdc.nal.usda.gov/api-key-signup.html)).  
+Do **not** commit the key.
 
-A few resources to get you started if this is your first Flutter project:
+**Recommended (Cursor / VS Code):** copy `dart_defines.example.json` to `dart_defines.local.json`,  
+paste your key, and use the **diet_tracker** run configuration (loads via `--dart-define-from-file`).
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+**CLI:**
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+```bash
+flutter run --dart-define-from-file=dart_defines.local.json
+```
+
+Or:
+
+```bash
+flutter run --dart-define=USDA_API_KEY=your_key_here
+```
+
+Open Food Facts does not use a key. The app sends the User-Agent  
+`DietTracker/1.0.0 (Flutter; diet-tracker-app)` as required by their API.
+
+## Food search
+
+- Built-in catalog and cached foods are searched first.
+- Generic foods (e.g. paneer, rice, banana) query **USDA** when local results are thin.
+- Packaged / branded queries and barcode numbers use **Open Food Facts**.
+- Enter an 8–14 digit barcode in the search field for product lookup.
+- Cached foods are stored in `shared_preferences` for offline reuse (7-day TTL).
+
+## Tests
+
+```bash
+flutter analyze
+flutter test
+```
+
+Network integration tests against live APIs are manual; unit tests cover parsers and nutrition math.
