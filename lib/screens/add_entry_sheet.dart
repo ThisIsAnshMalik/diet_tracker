@@ -139,18 +139,25 @@ class _AddFoodScreenState extends State<AddFoodScreen>
     if (mounted) Navigator.pop(context);
   }
 
-  Future<void> _logFromRecent(FoodEntry template) async {
-    await _logEntry(
-      FoodEntry(
-        id: DateTime.now().microsecondsSinceEpoch.toString(),
-        name: template.name,
-        mealType: _meal,
-        loggedAt: DateTime.now(),
-        calories: template.calories,
-        proteinG: template.proteinG,
-        carbsG: template.carbsG,
-        fatG: template.fatG,
-      ),
+  FoodItem _foodItemForRecent(FoodEntry entry) {
+    final catalog = findFoodByName(entry.name);
+    if (catalog != null) return catalog;
+
+    for (final cached in widget.nutritionRepository.listCachedFoods()) {
+      if (cached.displayName.toLowerCase() == entry.name.toLowerCase() ||
+          cached.name.toLowerCase() == entry.name.toLowerCase()) {
+        return cached;
+      }
+    }
+
+    return FoodItem(
+      name: entry.name,
+      calories: entry.calories,
+      proteinG: entry.proteinG,
+      carbsG: entry.carbsG,
+      fatG: entry.fatG,
+      servingLabel: 'Last logged serving',
+      source: FoodSource.local,
     );
   }
 
@@ -400,7 +407,7 @@ class _AddFoodScreenState extends State<AddFoodScreen>
               ],
             ),
           ),
-          _addCircle(() => _logFromRecent(e)),
+          _addCircle(() => _showServingSheet(_foodItemForRecent(e))),
         ],
       ),
     );
